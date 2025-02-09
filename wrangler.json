@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blia",
+  "main": "src/index.tsx",
+  "compatibility_date": "2025-02-04",
+  "assets": {    
+    "directory": "public"
+  },
+  // "compatibility_flags": [
+  //   "nodejs_compat"
+  // ],
+  "vars": {
+    //"CLERK_SECRET_KEY": "",
+    //"CLERK_PUBLISHABLE_KEY": "pk_test_bG95YWwtd2FydGhvZy04Ny5jbGVyay5hY2NvdW50cy5kZXYk"
+  },
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "MY_KV_NAMESPACE",
+  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  //   }
+  // ],
+  "r2_buckets": [
+    {
+      "binding": "MY_BUCKET",
+      "bucket_name": "r2-blia"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blia",
+      "database_id": "d5f9d608-2017-4c08-89f9-da91ab8b0904"
+    }
+  ]
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  // "observability": {
+  //   "enabled": true,
+  //   "head_sampling_rate": 1
+  // }
+}

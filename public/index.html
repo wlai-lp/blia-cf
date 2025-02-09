@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Rest of your HTML file -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.6/daisyui.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"
+    integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+    crossorigin="anonymous"></script>  
+
+  <title>BLIA</title>
+</head>
+
+<body>
+
+  <div id="app"></div>
+
+  <!-- Initialize Clerk with your
+Clerk Publishable Key and Frontend API URL -->
+  <script async crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_bG95YWwtd2FydGhvZy04Ny5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://loyal-warthog-87.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"></script>
+
+  <script>
+    window.addEventListener('load', async function () {
+      await Clerk.load()
+      
+      console.log('ClerkJS is loaded')
+
+      if (Clerk.user) {
+        console.log('User is logged in:', Clerk.user.firstName)
+        document.getElementById('app').innerHTML = `
+        <div class="min-h-screen flex flex-col bg-background text-foreground">
+          <nav class="flex items-center justify-between bg-background p-4 shadow-md">
+              <div class="flex space-x-4">
+                  <button hx-get="/dashboard" hx-target="#dashboard" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-foreground">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home h-5 w-5">
+                          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                      </svg>
+                      <span class="sr-only">Home</span>
+                  </button>
+                  <button hx-get="/open-membership-fees" hx-target="#dashboard" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-foreground">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart2 h-5 w-5">
+                          <line x1="18" x2="18" y1="20" y2="10"></line>
+                          <line x1="12" x2="12" y1="20" y2="4"></line>
+                          <line x1="6" x2="6" y1="20" y2="14"></line>
+                      </svg>
+                      <span class="sr-only">Analytics</span>
+                  </button>
+                  <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-foreground">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings h-5 w-5">
+                          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      <span class="sr-only">Settings</span>
+                  </button>
+              </div>
+              
+              <div class="inline-flex items-center justify-center" id="user-button"></div>
+              
+          </nav>
+          
+          <div id="dashboard" hx-get="/dashboard" hx-trigger="load, delay:1s"></div>  
+        </div>
+
+              
+      `
+        // Tell HTMX to process the newly added elements
+        htmx.process(document.getElementById('app'))
+
+        const userButtonDiv = document.getElementById('user-button')
+
+        Clerk.mountUserButton(userButtonDiv)
+      } else {
+        document.getElementById('app').innerHTML = `
+        <div id="sign-in"></div>
+        
+      `
+
+        const signInDiv = document.getElementById('sign-in')
+
+        Clerk.mountSignIn(signInDiv)
+      }
+    })
+  </script>
+</body>
+
+</html>
