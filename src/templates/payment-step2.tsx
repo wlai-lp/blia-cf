@@ -19,7 +19,7 @@ export const DashboardStep2Template = (member: string, date: string) => html`
         </div>        
     </div>
     </form>
-    <div hx-get="/feed">View Feed</div>
+    
 </div>
 
 

@@ -8,6 +8,7 @@ CREATE TABLE members (
     picture TEXT
 );
 
+DROP TABLE IF EXISTS membership_fee_stages;
 CREATE TABLE membership_fee_stages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     stage_name TEXT UNIQUE NOT NULL,
@@ -23,16 +24,6 @@ CREATE TABLE membership_fees (
     payment_date TEXT NOT NULL DEFAULT CURRENT_DATE,
     completed BOOLEAN NOT NULL DEFAULT 0    
 );
-CREATE TABLE membership_fees (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    membership_number TEXT NOT NULL,
-    year INTEGER NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    payment_date TEXT NOT NULL DEFAULT CURRENT_DATE,
-    stage_id INTEGER NOT NULL,
-    FOREIGN KEY (membership_number) REFERENCES members(membership_number) ON DELETE CASCADE,
-    FOREIGN KEY (stage_id) REFERENCES membership_fee_stages(id) ON DELETE SET NULL
-);
 
 DROP TABLE IF EXISTS membership_fee_stage_notes;
 CREATE TABLE membership_fee_stage_notes (
@@ -45,6 +36,8 @@ CREATE TABLE membership_fee_stage_notes (
     created_by TEXT NOT NULL,
     image_url TEXT
 );
+
+DROP TABLE IF EXISTS admin_users;
 CREATE TABLE admin_users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,

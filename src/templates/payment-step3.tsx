@@ -46,7 +46,7 @@ export const DashboardStep3Template = (member_name: string, member_id: string, m
         </div>
     </div>
     </form>
-    <div hx-get="/feed">View Feed</div>
+    
 </div>
 
 <script>

@@ -73,7 +73,7 @@ export const DashboardStep1Template = (date: string, year: number) => html`
         </div>
     </div>
     </form>
-    <div hx-get="/feed">View Feed</div>
+    
 </div>
 
 <script>
