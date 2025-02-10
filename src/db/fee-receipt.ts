@@ -53,11 +53,11 @@ export class FeeReceiptRepository {
                 )
                 .run();
 
-            // now mark the fee as completed
-            await this.db
-                .prepare('UPDATE membership_fees SET completed = 1 WHERE id = ?')
-                .bind(membership_fees_id)
-                .run();
+            // now mark the fee as completed, we don't make it completed here
+            // await this.db
+            //     .prepare('UPDATE membership_fees SET completed = 1 WHERE id = ?')
+            //     .bind(membership_fees_id)
+            //     .run();
 
             return { success: true, receipt_id: membership_fees_id };
         } catch (error) {

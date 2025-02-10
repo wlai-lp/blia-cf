@@ -125,14 +125,14 @@ export async function getOpenMembershipFees(c: Context<{ Bindings: Bindings }>) 
     
     return c.html(
       `
-      <h1 class="text-2xl font-bold mb-4">Membership Fees To Be Deposited</h1>
+      <div class="container mx-auto p-4 max-w-md">
+      <h1 class="text-2xl font-bold mb-4">Fees To Be Deposited</h1>
       
       ${openFees.results.map(fee => `        
         <div class="card bg-primary text-primary-content card-border w-full">
         <div class="card-body">
           <h2 class="card-title">${fee.year} - ${fee.first_name} ${fee.last_name} ${fee.chinese_name}</h2>
-          <p>Stage: ${fee.current_stage}</p>
-          <p>Date: ${fee.note_created_at}</p>
+          <p>Received Date: ${fee.note_created_at}</p>
           <p>Handled By: ${fee.note_created_by}</p>
           <p>Note: ${fee.latest_note}</p>
            <div class="card-actions justify-end">
@@ -142,8 +142,7 @@ export async function getOpenMembershipFees(c: Context<{ Bindings: Bindings }>) 
         </div>
       </div>
 
-
-        `).join('')}
+      `).join('')}
       `
     )
 
@@ -167,22 +166,30 @@ export async function getUnrecordedMembershipFees(c: Context<{ Bindings: Binding
     
     return c.html(
       `
-      <h1 class="text-2xl font-bold mb-4">Membership Fees To Be Recorded</h1>
-      
-      ${openFees.results.map(fee => `        
-        <div class="card bg-primary text-primary-content card-border w-full">
-        <div class="card-body">
-          <h2 class="card-title">${fee.year} - ${fee.first_name} ${fee.last_name} ${fee.chinese_name}</h2>
-          <p>Payment Date: ${fee.payment_date}</p>
-           <div class="card-actions justify-end">
-            <button hx-post="/record-master-sheet" hx-target="#dashboard" 
-              class="btn btn-neutral">Record Now</button>
+      <div class="container mx-auto p-4 max-w-md">
+        <h1 class="text-2xl font-bold mb-4">Fees To Be Recorded</h1>
+        
+        ${openFees.results.map(fee => `
+        <form method="POST" hx-post="/record-master-sheet" hx-target="#dashboard" >   
+          <input type="text" name="memberid" value="${fee.membership_number}" class="hidden" />
+          <input type="text" name="membership_fee_id" value="${fee.id}" class="hidden" />
+          <input type="text" name="notes" value="Recorded to master sheet" class="hidden" />
+          <input type="text" name="stage" value="Recorded" class="hidden" />     
+          <div class="card bg-primary text-primary-content card-border w-full">
+            <div class="card-body">
+              <h2 class="card-title">${fee.year} - ${fee.first_name} ${fee.last_name} ${fee.chinese_name}</h2>
+              <p>Payment Date: ${fee.payment_date}</p>
+              <div class="card-actions justify-end">
+                <button type="submit" 
+                  class="btn btn-neutral">Record Now</button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
+        </form>
+      
 
         `).join('')}
+      </div>
       `
     )
 
@@ -232,6 +239,8 @@ export async function recordStageNote(c: Context<{ Bindings: Bindings }>) {
         return c.json({ error: 'Failed to upload file' }, 500);
       }
       receiptUrl = r2object.key;
+    } else {
+      receiptUrl = '';
     }
 
     // Initialize repository
@@ -255,7 +264,7 @@ export async function recordStageNote(c: Context<{ Bindings: Bindings }>) {
 
     // Proceed to step 2
     return c.html(`
-      <h1 class="text-2xl font-bold mb-4">Membership Fees Deposited</h1>
+      <h1 class="text-2xl font-bold mb-4">Membership Fees ${stage} completed</h1>
       `);
 
   } catch (e) {
