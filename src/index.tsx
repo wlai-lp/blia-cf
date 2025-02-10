@@ -26,6 +26,7 @@ import { getFeed } from './routes/feed';
 import { getImage } from './routes/images';
 import { getDashboard, getProfile } from './routes/pages';
 import { recordStageNote } from './routes/fee-receipt';
+import { getUnrecordedMembershipFees } from './routes/fee-receipt';
 
 // Register routes
 app.post('/record-fee-receipt', recordFeeReceipt);
@@ -39,5 +40,8 @@ app.get('/feed', getFeed);
 app.get('/images/:key', getImage);
 app.get('/dashboard', getDashboard);
 app.get('/profile', getProfile);
-
+app.get('/unrecorded-membership-fees', getUnrecordedMembershipFees);
+app.post('/record-to-master/:id', async (c) => {
+  return c.json({ success: true });
+});
 export default app;

@@ -2,7 +2,7 @@ export interface FeeReceipt {
     membership_number: string;
     year: number;
     amount: number;
-    payment_date: string;        
+    payment_date: string;
     receipt_url?: string;
 }
 
@@ -16,14 +16,14 @@ export interface FeeStageNote {
 }
 
 export class FeeReceiptRepository {
-    constructor(private db: D1Database) {}
+    constructor(private db: D1Database) { }
 
     private async verifyMember(membership_number: string) {
         // First verify the member exists
         const memberExists = await this.db
             .prepare('SELECT 1 FROM members WHERE membership_number = ?')
             .bind(membership_number)
-            .first<{1: number}>();
+            .first<{ 1: number }>();
 
         console.log('Member exists check:', { memberExists, membership_number });
 
@@ -53,17 +53,17 @@ export class FeeReceiptRepository {
                 )
                 .run();
 
-                // now mark the fee as completed
-                await this.db
-                    .prepare('UPDATE membership_fees SET completed = 1 WHERE id = ?')
-                    .bind(membership_fees_id)
-                    .run();
+            // now mark the fee as completed
+            await this.db
+                .prepare('UPDATE membership_fees SET completed = 1 WHERE id = ?')
+                .bind(membership_fees_id)
+                .run();
 
             return { success: true, receipt_id: membership_fees_id };
         } catch (error) {
             console.error('Error in transaction:', error);
             throw error;
-        } 
+        }
     }
 
     private async checkDuplicateFee(membership_number: string, year: number) {
@@ -83,7 +83,7 @@ export class FeeReceiptRepository {
     async createFeeReceiptWithNote(receipt: FeeReceipt, note: FeeStageNote) {
         // Verify constraints first
         await this.verifyMember(receipt.membership_number);
-        
+
         // Check for duplicate fee record
         await this.checkDuplicateFee(receipt.membership_number, receipt.year);
 
@@ -226,7 +226,7 @@ export class FeeReceiptRepository {
     async searchMembers(query: string) {
         // Prepare the search terms for LIKE clauses
         const searchTerm = `%${query}%`;
-        
+
         const result = await this.db
             .prepare(
                 `SELECT 
@@ -256,34 +256,58 @@ export class FeeReceiptRepository {
     async getOpenMembershipFees() {
         const result = await this.db
             .prepare(
-                `SELECT 
-                    mf.id,
-                    mf.membership_number,
-                    mf.year,
-                    mf.amount,
-                    mf.payment_date,
-                    mf.completed,
-                    m.first_name,
-                    m.last_name,
-                    m.chinese_name,
-                    mfsn.note as latest_note,
-                    mfsn.created_at as note_created_at,
-                    mfsn.created_by as note_created_by,
-                    mfs.stage_name as current_stage
-                FROM membership_fees mf
-                JOIN members m ON mf.membership_number = m.membership_number
-                LEFT JOIN (
-                    SELECT membership_fees_id, note, created_at, created_by, stage_id
-                    FROM membership_fee_stage_notes mfsn1
-                    WHERE created_at = (
-                        SELECT MAX(created_at)
-                        FROM membership_fee_stage_notes mfsn2
-                        WHERE mfsn2.membership_fees_id = mfsn1.membership_fees_id
-                    )
-                ) mfsn ON mf.id = mfsn.membership_fees_id
-                LEFT JOIN membership_fee_stages mfs ON mfsn.stage_id = mfs.id
-                WHERE mf.completed = 0
-                ORDER BY mf.payment_date DESC`
+                `SELECT
+                mf.id,
+                mf.membership_number,
+                mf.year,  
+                mf.payment_date,
+                mf.completed,
+                m.first_name,
+                m.last_name,
+                m.chinese_name,
+                (
+                    SELECT
+                    mfsn.note
+                    FROM
+                    membership_fee_stage_notes AS mfsn
+                    WHERE
+                    mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+                    LIMIT 1
+                ) AS latest_note,
+                mf.payment_date as note_created_at,
+                (
+                    SELECT
+                    mfsn.created_by
+                    FROM
+                    membership_fee_stage_notes AS mfsn
+                    WHERE
+                    mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+                    LIMIT 1
+                ) AS note_created_by      
+                FROM
+                membership_fees AS mf
+                JOIN
+                members AS m ON mf.membership_number = m.membership_number
+                WHERE
+                mf.completed = 0
+                AND EXISTS (
+                    SELECT
+                    1
+                    FROM
+                    membership_fee_stage_notes AS mfsn
+                    WHERE
+                    mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+                )
+                AND NOT EXISTS (
+                    SELECT
+                    1
+                    FROM
+                    membership_fee_stage_notes AS mfsn
+                    WHERE
+                    mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 4     
+                )
+                ORDER BY mf.payment_date DESC
+                LIMIT 50`
             )
             .all<{
                 id: number;
@@ -301,5 +325,50 @@ export class FeeReceiptRepository {
                 current_stage: string;
             }>();
         return result;
+    }
+
+    async getUnrecordedMembershipFees() {
+        const results = await this.db
+            .prepare(
+                `SELECT
+                mf.id,
+                mf.membership_number,
+                mf.year,
+                mf.amount,
+                mf.payment_date,
+                mf.completed,
+                m.first_name,
+                m.last_name,
+                m.chinese_name
+                FROM
+                membership_fees AS mf
+                JOIN
+                members AS m ON mf.membership_number = m.membership_number
+                WHERE
+                mf.completed = 0
+                AND NOT EXISTS (
+                    SELECT
+                    1
+                    FROM
+                    membership_fee_stage_notes AS mfsn
+                    WHERE
+                    mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 5
+                )
+                ORDER BY mf.payment_date DESC
+                LIMIT 50`
+            )
+            .all<{
+                id: number;
+                membership_number: string;
+                year: number;
+                amount: number;
+                payment_date: string;
+                completed: number;
+                first_name: string;
+                last_name: string;
+                chinese_name: string;                
+            }>();
+
+        return results;
     }
 }

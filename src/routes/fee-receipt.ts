@@ -160,6 +160,45 @@ export async function getOpenMembershipFees(c: Context<{ Bindings: Bindings }>) 
   }
 }
 
+export async function getUnrecordedMembershipFees(c: Context<{ Bindings: Bindings }>) {
+  try {
+    const feeReceiptRepo = new FeeReceiptRepository(c.env.DB);
+    const openFees = await feeReceiptRepo.getUnrecordedMembershipFees();
+    
+    return c.html(
+      `
+      <h1 class="text-2xl font-bold mb-4">Membership Fees To Be Recorded</h1>
+      
+      ${openFees.results.map(fee => `        
+        <div class="card bg-primary text-primary-content card-border w-full">
+        <div class="card-body">
+          <h2 class="card-title">${fee.year} - ${fee.first_name} ${fee.last_name} ${fee.chinese_name}</h2>
+          <p>Payment Date: ${fee.payment_date}</p>
+           <div class="card-actions justify-end">
+            <button hx-post="/record-master-sheet" hx-target="#dashboard" 
+              class="btn btn-neutral">Record Now</button>
+          </div>
+        </div>
+      </div>
+
+
+        `).join('')}
+      `
+    )
+
+    return c.json({
+      success: true,
+      data: openFees
+    });
+  } catch (e) {
+    console.error('Error getting open membership fees:', e);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to get open membership fees' 
+    }, 500);
+  }
+}
+
 export async function recordStageNote(c: Context<{ Bindings: Bindings }>) {
   try {
     const auth = getAuth(c)   

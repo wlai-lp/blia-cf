@@ -46,3 +46,152 @@ CREATE TABLE admin_users (
     role TEXT NOT NULL CHECK (role IN ('admin', 'superadmin')),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+SELECT
+  mf.id,
+  mf.membership_number,
+  mf.year,
+  mf.amount,
+  mf.payment_date,
+  mf.completed,
+  m.first_name,
+  m.last_name,
+  m.chinese_name,
+  (SELECT mfsn.created_by FROM membership_fee_stage_notes AS mfsn WHERE mfsn.membership_fees_id = mf.id LIMIT 1) AS created_by
+FROM
+  membership_fees AS mf
+JOIN
+  members AS m ON mf.membership_number = m.membership_number
+WHERE
+  mf.completed = 0
+  AND NOT EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id != 4
+  );
+
+-- this returns membership fees that are not yet recorded, received stage 2 but not deposted stage 4
+  SELECT
+  mf.id,
+  mf.membership_number,
+  mf.year,
+  mf.amount,
+  mf.payment_date,
+  mf.completed,
+  m.first_name,
+  m.last_name,
+  m.chinese_name,
+  (
+    SELECT
+      mfsn.created_by
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+    LIMIT 1
+  ) AS created_by
+FROM
+  membership_fees AS mf
+JOIN
+  members AS m ON mf.membership_number = m.membership_number
+WHERE
+  mf.completed = 0
+  AND EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+  )
+  AND NOT EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 4
+  );
+
+
+  SELECT
+  mf.id,
+  mf.membership_number,
+  mf.year,  
+  mf.payment_date,
+  mf.completed,
+  m.first_name,
+  m.last_name,
+  m.chinese_name,
+  (
+    SELECT
+      mfsn.note
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+    LIMIT 1
+  ) AS latest_note,
+  mf.payment_date as note_created_at,
+  (
+    SELECT
+      mfsn.created_by
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+    LIMIT 1
+  ) AS note_created_by  
+FROM
+  membership_fees AS mf
+JOIN
+  members AS m ON mf.membership_number = m.membership_number
+WHERE
+  mf.completed = 0
+  AND EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 2
+  )
+  AND NOT EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 4     
+  )
+  ORDER BY mf.payment_date DESC;
+
+
+  SELECT
+  mf.id,
+  mf.membership_number,
+  mf.year,
+  mf.amount,
+  mf.payment_date,
+  mf.completed,
+  m.first_name,
+  m.last_name,
+  m.chinese_name
+FROM
+  membership_fees AS mf
+JOIN
+  members AS m ON mf.membership_number = m.membership_number
+WHERE
+  mf.completed = 0
+  AND NOT EXISTS (
+    SELECT
+      1
+    FROM
+      membership_fee_stage_notes AS mfsn
+    WHERE
+      mfsn.membership_fees_id = mf.id AND mfsn.stage_id = 5
+  );
