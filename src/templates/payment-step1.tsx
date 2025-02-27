@@ -23,7 +23,7 @@ export const DashboardStep1Template = (date: string, year: number) => html`
                 <div tabindex="0" role="button">
                     
                     <input hx-get="/search-members" hx-trigger="keyup" hx-target="#member-list" hx-swap="outterHTML"
-                        type="text" name="member" placeholder="Search member..." class="input input-primary w-full" />
+                        type="text" name="member" placeholder="Search member..." class="input input-primary text-lg w-full" />
                     <input type="text" name="memberid" value="1" class="hidden" />
                     
                     
@@ -63,7 +63,7 @@ export const DashboardStep1Template = (date: string, year: number) => html`
 
         <div>
             <h2 class="text-lg font-semibold mb-2">5. Notes</h2>            
-            <textarea type="text" name="notes" placeholder="placed in the cabinet" class="w-full textarea textarea-info"></textarea>                     
+            <textarea type="text" name="notes" placeholder="placed in the cabinet" class="w-full textarea textarea-info text-lg"></textarea>                     
         </div>
 
         <div>
